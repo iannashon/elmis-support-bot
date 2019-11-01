@@ -18,10 +18,21 @@ CHOOSING, TYPING_REPLY, TYPING_CHOICE, MAIN_MENU, ORDER_STATUS, ORDER_STATUS_PRO
 
 bot=telegram.Bot(token='711948397:AAF1NNp3m1uWkcCyttkGVVQd21UzQakIfRg')
 
-# api-endpoint
-API_ENDPOINT = "https://uat.tz.elmis-dev.org/new-api/support/createNewIssue"
-API_GET_RNR_STATUS_ENDPOINT = "https://uat.tz.elmis-dev.org/rest-api/support-desk/getLatestRequisitionByFacilityCode"
-API_SUBSCRIBE = "https://uat.tz.elmis-dev.org/rest-api/support-desk/addSubscribers"
+# TESTING
+# API_ENDPOINT = "http://localhost:9091/new-api/support/createNewIssue"
+# API_GET_RNR_STATUS_ENDPOINT = "http://localhost:9091/rest-api/support-desk/getLatestRequisitionByFacilityCode"
+# API_SUBSCRIBE = "http://localhost:9091/rest-api/support-desk/addSubscribers"
+
+# UAT
+# API_ENDPOINT = "https://uat.tz.elmis-dev.org/new-api/support/createNewIssue"
+# API_GET_RNR_STATUS_ENDPOINT = "https://uat.tz.elmis-dev.org/rest-api/support-desk/getLatestRequisitionByFacilityCode"
+# API_SUBSCRIBE = "https://uat.tz.elmis-dev.org/rest-api/support-desk/addSubscribers"
+
+
+# PRODUCTION
+API_ENDPOINT = "https://elmis.co.tz/new-api/support/createNewIssue"
+API_GET_RNR_STATUS_ENDPOINT = "https://elmis.co.tz/rest-api/support-desk/getLatestRequisitionByFacilityCode"
+API_SUBSCRIBE = "https://elmis.co.tz/rest-api/support-desk/addSubscribers"
 
 next_keyboard = [[InlineKeyboardButton("Next", callback_data='Next')]]
 main_menu_keyboard = [[InlineKeyboardButton("Main menu", callback_data='Main menu')]]
@@ -215,10 +226,10 @@ def add_product_step_two(update, context):
 
 # Custom choices
 def custom_choice(update, context):
-    update.message.reply_text('Alright, please send me the category first, '
-                              'for example "Most impressive skill"')
-
-    return TYPING_CHOICE
+    update.message.reply_text('Unknown command, sending you back to main menu')
+    welcome_html_string = ('<b>Hello ' + update.message.chat.first_name.upper() + '!</b> \nWelcome to eLMIS Support Desk \n\nWhat can I help you with?')
+    update.message.reply_html(welcome_html_string, reply_markup=main_menu_inline_keyboard)
+    return START
 
 
 
@@ -241,7 +252,7 @@ def get_msd_code(update, context):
 def program_name(update, context):
     text = update.message.text
     context.user_data['facility'] = text
-    reply_inline = [[InlineKeyboardButton("ILS", callback_data='ils')], [InlineKeyboardButton("ARV", callback_data='arv')], [InlineKeyboardButton("Lab System", callback_data='lab')], [InlineKeyboardButton("TB", callback_data='tb')]]
+    reply_inline = [[InlineKeyboardButton("ILS", callback_data='ils')], [InlineKeyboardButton("ARV", callback_data='arv')], [InlineKeyboardButton("Lab System", callback_data='lab')], [InlineKeyboardButton("TB", callback_data='tb')], [InlineKeyboardButton("Redesigned ILS", callback_data='ilshosp')], [InlineKeyboardButton("Redesigned LAB", callback_data='LABReport')], [InlineKeyboardButton("Redesigned TB", callback_data='TBReport')]]
     update.message.reply_text("Choose program of your RnR",reply_markup=InlineKeyboardMarkup(reply_inline))
     return GET_PROGRAME_NAME
 
@@ -492,7 +503,8 @@ def main():
                 pass_chat_data=True)]
         },
 
-        fallbacks=[RegexHandler('^Other$', custom_choice, pass_user_data=True)]
+        fallbacks=[RegexHandler('^Shit', main_menu),
+                   CommandHandler('help', main_menu)]
     )
 
 
